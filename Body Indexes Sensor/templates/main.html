@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<!-- Coding by CodingLab | www.codinglabweb.com -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+    <!----===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
+    <!--<title>Dashboard Sidebar Menu</title>-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <!--<img src="logo.png" alt="">-->
+                </span>
+
+                <div class="text logo-text">
+                    <span class="name" style="margin-left: -50px;">{{ name }}</span>
+                </div>
+            </div>
+
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="/HeartRate">
+                            <i class='bx bx-heart'></i>
+                            <span class="text nav-text">HeartRate</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/BloodPressure">
+                            <i class='bx bx-tachometer'></i>
+                            <span class="text nav-text">BloodPressure</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/BodyTemp">
+                            <i class='bx bx-body'></i>
+                            <span class="text nav-text">BodyTemp</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/BloodOxygenLevel">
+                            <i class='bx bx-droplet'></i>
+                            <span class="text nav-text">BloodOxygenLevel</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/RespiratoryRate">
+                            <i class='bx bx-wind'></i>
+                            <span class="text nav-text">RespiratoryRate</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/BloodSugarLevel">
+                            <i class='bx bx-food-menu'></i>
+                            <span class="text nav-text">BloodSugarLevel</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/SleepQuality">
+                            <i class='bx bx-bed'></i>
+                            <span class="text nav-text">SleepQuality</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="/logout">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+
+    <section class="home">
+        <style>
+            .container {
+                position: relative;
+                min-height: 100vh; /* This ensures that the container takes at least the full height of the viewport */
+            }
+            .rectangle {
+                position: absolute;
+                bottom: 80px; /* Adjusts the position from the bottom */
+                width: 165vh; /* Adjusted to full width */
+                height: 300px; /* Adjusted height for chart */
+                border: 1px solid;
+                padding: 10px;
+                display: flex;
+                align-items: center;
+            }
+            .centered-text {
+                flex-grow: 1;
+                text-align: center;
+            }
+        </style>
+        
+        <div class="container">
+            <div class="text">
+                {% if metric == 'Dashboard Sidebar' %}
+                <img src="{{ url_for('static', filename='home.jpg') }}" alt="Dashboard Image" style="float: left; margin-right: 10px; width: 165vh; height: 35vh;">
+                <img src="{{ url_for('static', filename='home2.jpg') }}" alt="Dashboard Image" style="float: left; margin-right: 10px; margin-top: 20px; width: 165vh; height: 60vh;">
+               
+                {% elif metric == 'HeartRate' %}
+                <canvas id="heartRateChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const heartRateChartElement = document.getElementById('heartRateChart');
+                        
+                        // Get data from Flask
+                        const heartRateData = {{ metric_data|tojson }};
+                        
+                        // Ensure heartRateData is not None or undefined
+                        if (!heartRateData) {
+                            heartRateData = [];
+                        }
+                        
+                        // Extract timestamps and values
+                        const labels = heartRateData.map(item => item[0]);
+                        const data = heartRateData.map(item => item[1]);
+            
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Heart Rate',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: data,
+                            }]
+                        };
+            
+                        if (heartRateChartElement) {
+                            const ctx = heartRateChartElement.getContext('2d');
+                            const heartRateChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                    <div class="rectangle">  
+                        <i class="bx bx-heart" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Heart Rate: {{ metric_value }} bpm</span>
+                    </div>
+                {% elif metric == 'BloodPressure' %}
+                <canvas id="bloodPressureChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const bloodPressureChartElement = document.getElementById('bloodPressureChart');
+                        const bloodPressureData = {{ metric_data|tojson }};
+                        
+                        if (!bloodPressureData) {
+                            bloodPressureData = [];
+                        }
+                        
+                        const labels = bloodPressureData.map(item => item[0]);
+                        const data = bloodPressureData.map(item => item[1]);
+        
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Blood Pressure',
+                                backgroundColor: 'rgb(54, 162, 235)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                data: data,
+                            }]
+                        };
+        
+                        if (bloodPressureChartElement) {
+                            const ctx = bloodPressureChartElement.getContext('2d');
+                            const bloodPressureChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                    <div class="rectangle">
+                        <i class="bx bx-tachometer" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Blood Pressure: {{ metric_value }} mmHg</span>
+                    </div>
+                {% elif metric == 'BodyTemp' %}
+                <canvas id="bodyTempChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const bodyTempChartElement = document.getElementById('bodyTempChart');
+                        const bodyTempData = {{ metric_data|tojson }};
+                        
+                        if (!bodyTempData) {
+                            bodyTempData = [];
+                        }
+                        
+                        const labels = bodyTempData.map(item => item[0]);
+                        const data = bodyTempData.map(item => item[1]);
+        
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Body Temperature',
+                                backgroundColor: 'rgb(255, 206, 86)',
+                                borderColor: 'rgb(255, 206, 86)',
+                                data: data,
+                            }]
+                        };
+        
+                        if (bodyTempChartElement) {
+                            const ctx = bodyTempChartElement.getContext('2d');
+                            const bodyTempChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                    <div class="rectangle">
+                        <i class="bx bx-body" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Body Temperature: {{ metric_value }} °C</span>
+                    </div>
+                {% elif metric == 'BloodOxygenLevel' %}
+                <canvas id="bloodOxygenLevelChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const bloodOxygenLevelChartElement = document.getElementById('bloodOxygenLevelChart');
+                        const bloodOxygenLevelData = {{ metric_data|tojson }};
+                        
+                        if (!bloodOxygenLevelData) {
+                            bloodOxygenLevelData = [];
+                        }
+                        
+                        const labels = bloodOxygenLevelData.map(item => item[0]);
+                        const data = bloodOxygenLevelData.map(item => item[1]);
+        
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Blood Oxygen Level',
+                                backgroundColor: 'rgb(75, 192, 192)',
+                                borderColor: 'rgb(75, 192, 192)',
+                                data: data,
+                            }]
+                        };
+        
+                        if (bloodOxygenLevelChartElement) {
+                            const ctx = bloodOxygenLevelChartElement.getContext('2d');
+                            const bloodOxygenLevelChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                    <div class="rectangle">
+                        <i class="bx bx-droplet" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Blood Oxygen Level: {{ metric_value }} %SpO2</span>
+                    </div>
+                {% elif metric == 'RespiratoryRate' %}
+                <canvas id="respiratoryRateChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const respiratoryRateChartElement = document.getElementById('respiratoryRateChart');
+                        const respiratoryRateData = {{ metric_data|tojson }};
+                        
+                        if (!respiratoryRateData) {
+                            respiratoryRateData = [];
+                        }
+                        
+                        const labels = respiratoryRateData.map(item => item[0]);
+                        const data = respiratoryRateData.map(item => item[1]);
+        
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Respiratory Rate',
+                                backgroundColor: 'rgb(153, 102, 255)',
+                                borderColor: 'rgb(153, 102, 255)',
+                                data: data,
+                            }]
+                        };
+        
+                        if (respiratoryRateChartElement) {
+                            const ctx = respiratoryRateChartElement.getContext('2d');
+                            const respiratoryRateChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                <div class="rectangle">
+                        <i class="bx bx-wind" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Respiratory Rate: {{ metric_value }} bpm</span>
+                    </div>
+                {% elif metric == 'BloodSugarLevel' %}
+                <canvas id="bloodSugarLevelChart" height="95"></canvas>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const bloodSugarLevelChartElement = document.getElementById('bloodSugarLevelChart');
+                        const bloodSugarLevelData = {{ metric_data|tojson }};
+                        
+                        if (!bloodSugarLevelData) {
+                            bloodSugarLevelData = [];
+                        }
+                        
+                        const labels = bloodSugarLevelData.map(item => item[0]);
+                        const data = bloodSugarLevelData.map(item => item[1]);
+        
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Blood Sugar Level',
+                                backgroundColor: 'rgb(255, 159, 64)',
+                                borderColor: 'rgb(255, 159, 64)',
+                                data: data,
+                            }]
+                        };
+        
+                        if (bloodSugarLevelChartElement) {
+                            const ctx = bloodSugarLevelChartElement.getContext('2d');
+                            const bloodSugarLevelChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                </script>
+                <div class="rectangle"> 
+                        <i class="bx bx-food-menu" style="float: left; margin-right: 10px;"></i> 
+                        <span class="centered-text">Blood Sugar Level: {{ metric_value }} mg/dL</span>
+                    </div>
+                    {% elif metric == 'SleepQuality' %}
+                    <canvas id="sleepQualityChart" height="95"></canvas>
+                    
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const sleepQualityChartElement = document.getElementById('sleepQualityChart');
+                        let sleepQualityData = {{ metric_data|tojson }};
+                    
+                        if (!sleepQualityData) {
+                            sleepQualityData = [];
+                        }
+                    
+                        const labels = sleepQualityData.map(item => item[0]);
+                        const data = sleepQualityData.map(item => item[1]);
+                    
+                        const chartData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Sleep Quality',
+                                backgroundColor: 'rgb(139, 0, 0)',
+                                borderColor: 'rgb(139, 0, 0)',
+                                data: data,
+                            }]
+                        };
+                    
+                        const options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        };
+                    
+                        if (sleepQualityChartElement) {
+                            const ctx = sleepQualityChartElement.getContext('2d');
+                            const sleepQualityChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: options
+                            });
+                        }
+                    });
+                </script>
+    <div class="rectangle">
+        <i class="bx bx-bed" style="float: left; margin-right: 10px;"></i>
+        <span class="centered-text">Sleep Quality: {{ metric_value }}</span>
+    </div>
+                {% else %}
+                    <div class="rectangle">
+                        <i class="bx bx-bed" style="float: left; margin-right: 10px;"></i>
+                        <span class="centered-text">No content available</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const body = document.querySelector('body'),
+            sidebar = body.querySelector('nav'),
+            toggle = body.querySelector(".toggle"),
+            searchBtn = body.querySelector(".search-box"),
+            modeSwitch = body.querySelector(".toggle-switch"),
+            modeText = body.querySelector(".mode-text");
+    
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        })
+    
+        searchBtn.addEventListener("click", () => {
+            sidebar.classList.remove("close");
+        })
+    
+    </script>
+
+</body>
+
+</html>
